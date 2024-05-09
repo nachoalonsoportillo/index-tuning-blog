@@ -60,6 +60,6 @@ while true; do
   if ((elapsed_time >= 18000)); then
     break
   fi
-  psql -f queries.sql >/dev/null
+  xargs -d "\n" -n 1 -P 10 psql -c < compact-queries.sql
   sleep 60
 done
