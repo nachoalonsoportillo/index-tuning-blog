@@ -1,6 +1,6 @@
 CREATE EXTENSION azure_storage;
 
-SELECT azure_storage.account_add('<storage_account_name>', 'storage_account_access_key');
+SELECT azure_storage.account_add('<storage_account_name>', '<storage_account_access_key>');
 
 SELECT path, bytes, pg_size_pretty(bytes), content_type FROM azure_storage.blob_list('<storage_account_name>','<container_name>');
 
