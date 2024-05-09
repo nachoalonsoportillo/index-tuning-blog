@@ -19,9 +19,9 @@ PS3='Please select the region where you want to deploy: '
 options=("East Asia" "Central India" "North Europe" "Southeast Asia" "South Central US" "UK South" "West US 3")
 select REGION in "${options[@]}"
 do
-  case $opt in
+  case $REGION in
     *)
-      if [[ ! -z "$opt" ]]
+      if [[ ! -z "$REGION" ]]
       then
         break
       fi
