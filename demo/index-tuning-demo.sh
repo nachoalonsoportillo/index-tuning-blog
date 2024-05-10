@@ -11,7 +11,7 @@ for i in {a..z} {0..9};
 done
 PREFIX=$(IFS=; echo "${array[*]::12}")
 RESOURCEGROUP=rg-indextuning-$PREFIX
-SERVERNAME=indextuning-pgfs-$PREFIX
+SERVER=indextuning-pgfs-$PREFIX
 ADMINLOGIN=adminuser
 DATABASE=tpch
 PASSWORD=S3cr3T-$PREFIX-P@sSw0Rd
@@ -37,7 +37,7 @@ printf "Setting subscription ${RD}'${SUBSCRIPTION}'${NC} as current subscription
 az account set --subscription "$SUBSCRIPTION"  --output none --only-show-errors
 printf "Creating resource group ${RD}'${RESOURCEGROUP}'${NC} in location ${RD}'${REGION}'${NC}.\n\n"
 az group create --resource-group "$RESOURCEGROUP" --location "$REGION" --output none --only-show-errors
-printf "Creating instance of Azure Database for PostgreSQL Flexible Server with server name ${RD}'${SERVERNAME}'${NC}, inside resource group ${RD}'${RESOURCEGROUP}'${NC}, and in location ${RD}'${REGION}'${NC}.\n\n"
+printf "Creating instance of Azure Database for PostgreSQL Flexible Server with server name ${RD}'${SERVER}'${NC}, inside resource group ${RD}'${RESOURCEGROUP}'${NC}, and in location ${RD}'${REGION}'${NC}.\n\n"
 az postgres flexible-server create --resource-group "$RESOURCEGROUP" --name "$SERVER" --location "$REGION" --public-access "0.0.0.0-255.255.255.255" --sku-name "Standard_D4ds_v5" --tier "GeneralPurpose" --high-availability "Disabled" --geo-redundant-backup "Disabled" --database-name "$DATABASE" --active-directory-auth "Disabled" --storage-auto-grow "Disabled" --storage-size 512 --version 16 --admin-user "$ADMINLOGIN" --admin-password "$PASSWORD"  --yes --output none --only-show-errors
 printf "Configuring Query Store to capture ALL statements.\n\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "pg_qs.query_capture_mode" --value "ALL" --output none --only-show-errors
