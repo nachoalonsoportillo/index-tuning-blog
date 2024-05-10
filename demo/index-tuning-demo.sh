@@ -61,7 +61,7 @@ for file in *.tbl; do
   curl "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/$file"
 done
 printf "Updloading data files to blob container ${RD}'${CONTAINER}'${NC} of storage account ${RD}'${STORAGEACCOUNT}'${NC}.\n\n"
-az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "." --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --output none --only-show-errors
+az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "$DIR_PATH" --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --output none --only-show-errors
 printf "Configure environment variables for psql.\n\n"
 export PGHOST=$SERVERNAME.postgres.database.azure.com
 export PGUSER=$ADMINLOGIN
@@ -73,7 +73,6 @@ sed "s/<storage_account_name>/$STORAGEACCOUNT/g" $DIR_PATH/create-tpch.sql > $DI
 ESCAPEDSTORAGEACCOUNTKEY=$(sed -e 's/[&\\/]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$STORAGEACCOUNTKEY")
 sed -i "s/<storage_account_access_key>/$ESCAPEDSTORAGEACCOUNTKEY/g" $DIR_PATH/create-tpch-"$PREFIX".sql
 sed -i "s/<container_name>/$CONTAINER/g" $DIR_PATH/create-tpch-"$PREFIX".sql
-more $DIR_PATH/create-tpch-"$PREFIX".sql
 psql -f $DIR_PATH/create-tpch-"$PREFIX".sql >/dev/null
 rm $DIR_PATH/create-tpch-"$PREFIX".sql
 printf "Create an additional database wth a single table that will be queried to compete for shared buffers with the data in TPCH and, consecuently, increase IOPS.\n\n"
