@@ -82,7 +82,7 @@ printf "Run 22 TPCH queries and 1 qery on the filler database for 12 hours.\n\n"
 start_time=$(date +%s)
 loop=1
 while true; do
-  printf "Executing loop number ${RD}$loop${NC} at ${RD}$(date +%s)${NC}.\n\n"
+  printf "Executing loop number ${RD}$loop${NC} at ${RD}$(date)${NC}.\n\n"
   loop=$((loop + 1))
   current_time=$(date +%s)
   elapsed_time=$((current_time - start_time))
