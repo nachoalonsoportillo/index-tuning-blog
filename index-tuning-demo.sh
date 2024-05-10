@@ -38,7 +38,7 @@ az storage account create --resource-group "$RESOURCEGROUP" --name "$STORAGEACCO
 STORAGEACCOUNTKEY=$(az storage account keys list --resource-group "$RESOURCEGROUP" --account-name "$STORAGEACCOUNT" --query [0].value -o tsv)
 az storage container create --account-name "$PREFIX" --name "$CONTAINER" --only-show-errors
 for file in *.tbl; do
-  curl -O "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/$file"
+  curl "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/$file"
 done
 az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "." --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --only-show-errors
 export PGHOST=$SERVERNAME.postgres.database.azure.com
@@ -54,9 +54,7 @@ sed -i "s/<container_name>/$CONTAINER/g" create-tpch-"$PREFIX".sql
 psql -f create-tpch-"$PREFIX".sql >/dev/null
 rm create-tpch-"$PREFIX".sql
 psql -c 'CREATE DATABASE filler;' >/dev/null
-psql -d 'filler' -c '
-
-;' >/dev/null
+psql -d 'filler' -c 'select generate_series as id, repeat('X', 1000) into filler from (select * from generate_series(1, 1000000));' >/dev/null
 start_time=$(date +%s)
 while true; do
   current_time=$(date +%s)
@@ -65,5 +63,6 @@ while true; do
     break
   fi
   xargs -d "\n" -n 1 -P 10 psql -c >/dev/null < compact-queries.sql
+  psql -d 'filler' -c 'select count(*) from filler;' >/dev/null
   sleep 60
 done
