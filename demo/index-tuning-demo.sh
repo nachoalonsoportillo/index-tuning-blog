@@ -58,7 +58,7 @@ printf "Creating blob container ${RD}'${CONTAINER}'${NC} in storage account ${RD
 az storage container create --account-name "$STORAGEACCOUNT" --name "$CONTAINER" --output none --only-show-errors
 printf "Downloading data files from GitHub repo.\n\n"
 for file in *.tbl; do
-  curl "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/$file"
+  curl "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/demo/$file"
 done
 printf "Updloading data files to blob container ${RD}'${CONTAINER}'${NC} of storage account ${RD}'${STORAGEACCOUNT}'${NC}.\n\n"
 az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "$DIR_PATH" --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --output none --only-show-errors
