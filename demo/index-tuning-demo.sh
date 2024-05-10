@@ -79,7 +79,7 @@ printf "Create an additional database wth a single table that will be queried to
 psql -c 'CREATE DATABASE filler;' >/dev/null
 psql -d 'filler' -c 'select generate_series as id, repeat('\''X'\'', 1000) into filler from (select * from generate_series(1, 1000000));' >/dev/null
 printf "Run 22 TPCH queries and 1 qery on the filler database for 12 hours.\n\n" 
-URL="https://ms.portal.azure.com/?feature.customportal=false&Microsoft_Azure_OSSDatabases=ci&forceEnableFeatures=Microsoft.DBforPostgreSQL%2Fenableindextuning_public#@microsoft.onmicrosoft.com/resource$(az postgres flexible-server show --resource-group $RESOURCEGROUP --name $SERVER --query id -o tsv)/indexTuning"
+URL="https://ms.portal.azure.com/?feature.customportal=false&Microsoft_Azure_OSSDatabases=ci&forceEnableFeatures=Microsoft.DBforPostgreSQL%2Fenableindextuning_public#@microsoft.onmicrosoft.com/resource"$(az postgres flexible-server show --resource-group $RESOURCEGROUP --name $SERVER --query id -o tsv)"/indexTuning"
 printf "By the time the benchmark completes, you should be able to see index recommendations from $URL.\n\n"
 start_time=$(date +%s)
 loop=1
