@@ -9,7 +9,7 @@ RESOURCEGROUP=rg-indextuning-$PREFIX
 SERVERNAME=indextuning-pgfs-$PREFIX
 ADMINLOGIN=adminuser
 DATABASE=tpch
-PASSWORD=S3cr3T-$PREFIX-P@$$w0Rd
+PASSWORD=S3cr3T-$PREFIX-P@sSw0Rd
 STORAGEACCOUNT=$PREFIX
 CONTAINER="data-to-load"
 PS3='Please select the region where you want to deploy: '
@@ -53,6 +53,10 @@ sed -i "s/<storage_account_access_key>/$ESCAPEDSTORAGEACCOUNTKEY/g" create-tpch-
 sed -i "s/<container_name>/$CONTAINER/g" create-tpch-"$PREFIX".sql
 psql -f create-tpch-"$PREFIX".sql >/dev/null
 rm create-tpch-"$PREFIX".sql
+psql -c 'CREATE DATABASE filler;' >/dev/null
+psql -d 'filler' -c '
+
+;' >/dev/null
 start_time=$(date +%s)
 while true; do
   current_time=$(date +%s)
