@@ -77,7 +77,7 @@ psql -f $DIR_PATH/create-tpch-"$PREFIX".sql >/dev/null
 rm $DIR_PATH/create-tpch-"$PREFIX".sql
 printf "Create an additional database wth a single table that will be queried to compete for shared buffers with the data in TPCH and, consecuently, increase IOPS.\n\n"
 psql -c 'CREATE DATABASE filler;' >/dev/null
-psql -d 'filler' -c 'select generate_series as id, repeat('\'''X'\'', 1000) into filler from (select * from generate_series(1, 1000000));' >/dev/null
+psql -d 'filler' -c 'select generate_series as id, repeat('\''X'\'', 1000) into filler from (select * from generate_series(1, 1000000));' >/dev/null
 printf "Run 22 TPCH queries and 1 qery on the filler database for 12 hours.\n\n" 
 start_time=$(date +%s)
 loop=1
