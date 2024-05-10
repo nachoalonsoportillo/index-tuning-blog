@@ -58,9 +58,9 @@ printf "Creating blob container ${RD}'${CONTAINER}'${NC} in storage account ${RD
 az storage container create --account-name "$STORAGEACCOUNT" --name "$CONTAINER" --output none --only-show-errors
 printf "Downloading data files from GitHub repo.\n\n"
 for file in *.tbl; do
-  curl "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/demo/$file"
+  curl -O "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/demo/$file"
 done
-printf "Updloading data files to blob container ${RD}'${CONTAINER}'${NC} of storage account ${RD}'${STORAGEACCOUNT}'${NC}.\n\n"
+printf "Uploading data files to blob container ${RD}'${CONTAINER}'${NC} of storage account ${RD}'${STORAGEACCOUNT}'${NC}.\n\n"
 az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "$DIR_PATH" --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --output none --only-show-errors
 printf "Configure environment variables for psql.\n\n"
 export PGHOST=$SERVER.postgres.database.azure.com
@@ -81,18 +81,14 @@ psql -d 'filler' -c 'select generate_series as id, repeat('\''X'\'', 1000) into 
 printf "Run 22 TPCH queries and 1 qery on the filler database for 12 hours.\n\n" 
 URL="https://ms.portal.azure.com/?feature.customportal=false&Microsoft_Azure_OSSDatabases=ci&forceEnableFeatures=Microsoft.DBforPostgreSQL%2Fenableindextuning_public#@microsoft.onmicrosoft.com/resource"$(az postgres flexible-server show --resource-group $RESOURCEGROUP --name $SERVER --query id -o tsv)"/indexTuning"
 printf "By the time the benchmark completes, you should be able to see index recommendations from $URL.\n\n"
+
 start_time=$(date +%s)
-loop=1
 while true; do
-  printf "Executing loop number ${RD}$loop${NC} at ${RD}$(date)${NC}.\n\n"
-  loop=$((loop + 1))
   current_time=$(date +%s)
   elapsed_time=$((current_time - start_time))
-  if ((elapsed_time >= 43200)); then
+  if ((elapsed_time >= 7200)); then
     break
   fi
-  xargs -d "\n\n" -n 1 -P 10 psql -c >/dev/null < $DIR_PATH/compact-queries.sql
-  psql -d 'filler' -c 'select count(*) from filler;' >/dev/null
-  sleep 60
+  ID=$(((RANDOM % 1000000)+1));echo $queryprefix$(((RANDOM % 2000)+1))") "$querysuffix$ID$querysuffix2$(((RANDOM % 5000)+$ID))";"|psql -d "filler"
+  sleep 1
 done
-printf "Benchmark completed. Index recommendations can be seen from $URL.\n\n"
