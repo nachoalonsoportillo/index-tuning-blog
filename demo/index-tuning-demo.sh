@@ -1,4 +1,7 @@
 #!/bin/bash
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+SCRIPT_NAME="$(basename "$0")"
+DIR_PATH="${SCRIPT_PATH%$SCRIPT_NAME}"
 array=()
 for i in {a..z} {0..9}; 
    do
@@ -47,12 +50,12 @@ export PGPORT=5432
 export PGDATABASE=$DATABASE
 export PGPASSWORD=$PASSWORD
 psql -c 'CREATE EXTENSION azure_storage;'
-sed "s/<storage_account_name>/$STORAGEACCOUNT/g" create-tpch.sql > create-tpch-"$PREFIX".sql
+sed "s/<storage_account_name>/$STORAGEACCOUNT/g" $DIR_PATH/create-tpch.sql > $DIR_PATH/create-tpch-"$PREFIX".sql
 ESCAPEDSTORAGEACCOUNTKEY=$(sed -e 's/[&\\/]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$STORAGEACCOUNTKEY")
-sed -i "s/<storage_account_access_key>/$ESCAPEDSTORAGEACCOUNTKEY/g" create-tpch-"$PREFIX".sql
-sed -i "s/<container_name>/$CONTAINER/g" create-tpch-"$PREFIX".sql
-psql -f create-tpch-"$PREFIX".sql >/dev/null
-rm create-tpch-"$PREFIX".sql
+sed -i "s/<storage_account_access_key>/$ESCAPEDSTORAGEACCOUNTKEY/g" $DIR_PATH/create-tpch-"$PREFIX".sql
+sed -i "s/<container_name>/$CONTAINER/g" $DIR_PATH/create-tpch-"$PREFIX".sql
+psql -f $DIR_PATH/create-tpch-"$PREFIX".sql >/dev/null
+rm $DIR_PATH/create-tpch-"$PREFIX".sql
 psql -c 'CREATE DATABASE filler;' >/dev/null
 psql -d 'filler' -c 'select generate_series as id, repeat('X', 1000) into filler from (select * from generate_series(1, 1000000));' >/dev/null
 start_time=$(date +%s)
@@ -62,7 +65,8 @@ while true; do
   if ((elapsed_time >= 18000)); then
     break
   fi
-  xargs -d "\n" -n 1 -P 10 psql -c >/dev/null < compact-queries.sql
+  xargs -d "\n" -n 1 -P 10 psql -c >/dev/null < $DIR_PATH/compact-queries.sql
   psql -d 'filler' -c 'select count(*) from filler;' >/dev/null
   sleep 60
 done
+
