@@ -26,21 +26,21 @@ do
   esac
 done
 read -p "Enter the name or GUID of your subscription: " SUBSCRIPTION
-az account set --subscription "$SUBSCRIPTION" --only-show-errors
-az group create --resource-group "$RESOURCEGROUP" --location "$REGION" --only-show-errors
-az postgres flexible-server create --resource-group "$RESOURCEGROUP" --name "$SERVERNAME" --location "$REGION" --public-access "0.0.0.0-255.255.255.255" --sku-name "Standard_D4ds_v5" --tier "GeneralPurpose" --high-availability "Disabled" --geo-redundant-backup "Disabled" --database-name "$DATABASE" --active-directory-auth "Disabled" --storage-auto-grow "Disabled" --storage-size 512 --version 16 --admin-user "$ADMINLOGIN" --admin-password "$PASSWORD"  --yes --only-show-errors
-az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "pg_qs.query_capture_mode" --value "ALL" --only-show-errors
-az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "pg_qs.interval_length_minutes" --value 10 --only-show-errors
-az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "index_tuning.mode" --value "REPORT" --only-show-errors
-az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "index_tuning.analysis_interval" --value "60" --only-show-errors
-az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "azure.extensions" --value "azure_storage" --only-show-errors
-az storage account create --resource-group "$RESOURCEGROUP" --name "$STORAGEACCOUNT" --access-tier "Hot" --kind "BlobStorage" --location "$REGION" --public-network-access "Enabled" --sku "Standard_GRS" --only-show-errors
+az account set --subscription "$SUBSCRIPTION"  --output none --only-show-errors
+az group create --resource-group "$RESOURCEGROUP" --location "$REGION" --output none --only-show-errors
+az postgres flexible-server create --resource-group "$RESOURCEGROUP" --name "$SERVERNAME" --location "$REGION" --public-access "0.0.0.0-255.255.255.255" --sku-name "Standard_D4ds_v5" --tier "GeneralPurpose" --high-availability "Disabled" --geo-redundant-backup "Disabled" --database-name "$DATABASE" --active-directory-auth "Disabled" --storage-auto-grow "Disabled" --storage-size 512 --version 16 --admin-user "$ADMINLOGIN" --admin-password "$PASSWORD"  --yes --output none --only-show-errors
+az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "pg_qs.query_capture_mode" --value "ALL" --output none --only-show-errors
+az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "pg_qs.interval_length_minutes" --value 10 --output none --only-show-errors
+az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "index_tuning.mode" --value "REPORT" --output none --only-show-errors
+az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "index_tuning.analysis_interval" --value "60" --output none --only-show-errors
+az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "azure.extensions" --value "azure_storage" --output none --only-show-errors
+az storage account create --resource-group "$RESOURCEGROUP" --name "$STORAGEACCOUNT" --access-tier "Hot" --kind "BlobStorage" --location "$REGION" --public-network-access "Enabled" --sku "Standard_GRS" --output none --only-show-errors
 STORAGEACCOUNTKEY=$(az storage account keys list --resource-group "$RESOURCEGROUP" --account-name "$STORAGEACCOUNT" --query [0].value -o tsv)
-az storage container create --account-name "$PREFIX" --name "$CONTAINER" --only-show-errors
+az storage container create --account-name "$PREFIX" --name "$CONTAINER" --output none --only-show-errors
 for file in *.tbl; do
   curl "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/$file"
 done
-az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "." --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --only-show-errors
+az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "." --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --output none --only-show-errors
 export PGHOST=$SERVERNAME.postgres.database.azure.com
 export PGUSER=$ADMINLOGIN
 export PGPORT=5432
