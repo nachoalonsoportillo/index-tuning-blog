@@ -38,7 +38,7 @@ az storage account create --resource-group "$RESOURCEGROUP" --name "$STORAGEACCO
 STORAGEACCOUNTKEY=$(az storage account keys list --resource-group "$RESOURCEGROUP" --account-name "$STORAGEACCOUNT" --query [0].value -o tsv)
 az storage container create --account-name "$PREFIX" --name "$CONTAINER" --only-show-errors
 for file in *.tbl; do
-  curl "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/$file"
+  curl -O "https://media.githubusercontent.com/media/nachoalonsoportillo/index-tuning-blog/main/$file"
 done
 az storage blob upload-batch --account-name "$STORAGEACCOUNT" --destination "$CONTAINER" --source "." --pattern "*.tbl" --account-key "$STORAGEACCOUNTKEY" --overwrite --only-show-errors
 export PGHOST=$SERVERNAME.postgres.database.azure.com
