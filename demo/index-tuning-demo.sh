@@ -46,7 +46,7 @@ az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --se
 printf "Configuring index tuning to start producing index recommendations.\n\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "index_tuning.mode" --value "REPORT" --output none --only-show-errors
 printf "Reducing index tuning analysis interval to 60 minutes.\n\n"
-printf "${RD}Note that the first index tuning session will only start after 12 hours since it was enabled for the first time. Only when that tuning session completes, it will observe this value and will schedule the next run to start 60 minutes later.${NC}\n\n"
+printf "${RD}Note that the first index tuning session will only start 12 hours after it was enabled. Only when that tuning session completes, it will observe this value and will schedule the next run to start 60 minutes later.${NC}\n\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "index_tuning.analysis_interval" --value "60" --output none --only-show-errors
 printf "Enable azure_storage extension.\n\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVERNAME" --name "azure.extensions" --value "azure_storage" --output none --only-show-errors
@@ -77,8 +77,8 @@ psql -f $DIR_PATH/create-tpch-"$PREFIX".sql >/dev/null
 rm $DIR_PATH/create-tpch-"$PREFIX".sql
 printf "Create an additional database wth a single table that will be queried to compete for shared buffers with the data in TPCH and, consecuently, increase IOPS.\n\n"
 psql -c 'CREATE DATABASE filler;' >/dev/null
-psql -d 'filler' -c 'select generate_series as id, repeat('X', 1000) into filler from (select * from generate_series(1, 1000000));' >/dev/null
-printf "Run 22 TPCH queries and 1 qery on the filler database for 12 hours\n\n." 
+psql -d 'filler' -c 'select generate_series as id, repeat('\'''X'\'', 1000) into filler from (select * from generate_series(1, 1000000));' >/dev/null
+printf "Run 22 TPCH queries and 1 qery on the filler database for 12 hours.\n\n" 
 start_time=$(date +%s)
 loop=1
 while true; do
