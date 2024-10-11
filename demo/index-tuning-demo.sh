@@ -56,7 +56,8 @@ az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --se
 printf "[$(date -u)] Create diagnostic settings to collect metrics and logs to compare improvements after applying index recommendations.\n"
 az monitor diagnostic-settings create --name "index-tuning" --resource "$PGFS" --workspace "$LAWS" --metrics '[{"category":"AllMetrics","enabled":true,"retentionPolicy":{"days":0,"enabled":false}}]' --logs "[{"categoryGroup":"audit","enabled":true,"retentionPolicy":{"days":0,"enabled":false}},{"categoryGroup":"allLogs","enabled":true,"retentionPolicy":{"days":0,"enabled":false}}]" --output none --only-show-errors
 printf "[$(date -u)] Create storage account '${STORAGEACCOUNT}', in resource group '${RESOURCEGROUP}' and location '${REGION}', to host the data files with which the ecommerce database objects will be populated.\n"
-az storage account create --resource-group "$RESOURCEGROUP" --name "$STORAGEACCOUNT" --access-tier "Hot" --kind "BlobStorage" --location "$REGION" --public-network-access "Enabled" --sku "Standard_GRS" --output none --only-show-errorsprintf "[$(date -u)] Fetch access key of the storage account to configure azure_storage extension.\n"
+az storage account create --resource-group "$RESOURCEGROUP" --name "$STORAGEACCOUNT" --access-tier "Hot" --kind "BlobStorage" --location "$REGION" --public-network-access "Enabled" --sku "Standard_GRS" --output none --only-show-errors
+printf "[$(date -u)] Fetch access key of the storage account to configure azure_storage extension.\n"
 STORAGEACCOUNTKEY=$(az storage account keys list --resource-group "$RESOURCEGROUP" --account-name "$STORAGEACCOUNT" --query [0].value -o tsv)
 printf "[$(date -u)] Create blob container '${CONTAINER}' in storage account '${STORAGEACCOUNT}'.\n"
 az storage container create --account-name "$STORAGEACCOUNT" --name "$CONTAINER" --output none --only-show-errors
