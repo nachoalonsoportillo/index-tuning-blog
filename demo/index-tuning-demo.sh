@@ -7,15 +7,16 @@ for i in {a..z} {0..9};
    array[$RANDOM]=$i
 done
 PREFIX=$(IFS=; echo "${array[*]::12}")
+PREFIX=demo
 RESOURCEGROUP=rg-indextuning-$PREFIX
-SERVER=indextuning-pgfs-$PREFIX
+SERVER=indextuning-$PREFIX
 ADMINLOGIN=adminuser
 DATABASE=ecommerce
 PASSWORD=S3cr3T-$PREFIX-P@sSw0Rd
-STORAGEACCOUNT=$PREFIX
+STORAGEACCOUNT=indextuning$PREFIX
 CONTAINER="data-to-load"
 PS3='Please select the region where you want to deploy: '
-options=("East Asia" "Central India" "North Europe" "Southeast Asia" "South Central US" "UK South" "West US 3")
+options=("East Asia" "Central India" "North Europe" "Southeast Asia" "South Central US" "UK South" "West US 3" "East US 2")
 select REGION in "${options[@]}"
 do
   case $REGION in
