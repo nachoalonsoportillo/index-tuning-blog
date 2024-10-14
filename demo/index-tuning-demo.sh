@@ -7,7 +7,6 @@ for i in {a..z} {0..9};
    array[$RANDOM]=$i
 done
 PREFIX=$(IFS=; echo "${array[*]::12}")
-PREFIX=demo
 RESOURCEGROUP=rg-indextuning-$PREFIX
 SERVER=indextuning-$PREFIX
 ADMINLOGIN=adminuser
