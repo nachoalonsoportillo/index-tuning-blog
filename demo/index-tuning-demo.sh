@@ -46,6 +46,8 @@ az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --se
 printf "[$(date -u)] Reduce index tuning analysis interval to 60 minutes.\n"
 printf "[$(date -u)] Note that the first index tuning session will only start 12 hours after it was enabled. Only when that tuning session completes, it will observe this value and will schedule the next run to start 60 minutes later.\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "index_tuning.analysis_interval" --value "60" --output none --only-show-errors
+printf "[$(date -u)] Remove requirement for TLS/SSL.\n"
+az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "require_secure_transport" --value "OFF" --output none --only-show-errors
 printf "[$(date -u)] Enable azure_storage extension.\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "azure.extensions" --value "azure_storage" --output none --only-show-errors
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "metrics.collector_database_activity" --value "ON" --output none --only-show-errors
