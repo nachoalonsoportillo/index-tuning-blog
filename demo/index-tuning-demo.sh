@@ -39,6 +39,8 @@ printf "[$(date -u)] Reduce Query Store aggregation interval to 10 minutes.\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "pg_qs.interval_length_minutes" --value 10 --output none --only-show-errors
 printf "[$(date -u)] Configure Query Store to save query plans.\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "pg_qs.store_query_plans" --value "ON" --output none --only-show-errors
+printf "[$(date -u)] Configure Query Store to capture parameters in parameterized queries.\n"
+az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "pg_qs.parameters_capture_mode" --value "capture_first_sample" --output none --only-show-errors
 printf "[$(date -u)] Configure index tuning to start producing index recommendations.\n"
 az postgres flexible-server parameter set --resource-group "$RESOURCEGROUP" --server-name "$SERVER" --name "index_tuning.mode" --value "REPORT" --output none --only-show-errors
 printf "[$(date -u)] Reduce index tuning analysis interval to 60 minutes.\n"
@@ -84,7 +86,7 @@ sed -i "s/<container_name>/$CONTAINER/g" $DIR_PATH/create-ecommerce.sql
 psql -f $DIR_PATH/create-ecommerce.sql >/dev/null
 #rm $DIR_PATH/create-ecommerce.sql
 printf "[$(date -u)] Run ANALYZE on all tables.\n"
-table_names=("customer" "lineitem" "nation" "orders" "part" "partsupp" "region" "supplier")
+table_names=("\"customer\".\"customer\"" "\"order\".\"lineitem\"" "\"common\".\"nation\"" "\"order\".\"orders\"" "\"stock\".\"part\"" "\"stock\".\"partsupp\"" "\"common\".\"region\"" "\"supplier\".\"supplier\"")
 for table in "${table_names[@]}"
 do
   printf "[$(date -u)] Run ANALYZE on $table.\n"
@@ -99,12 +101,15 @@ start_time=$(date +%s)
 sed -i '/^$/d' queries.sql
 queries=()
 pids=()
-while IFS= read -r line; do
-  queries+=("$line")
+n=1
+while IFS= read -r line || [ -n "$line" ]; do
+    echo "$line" > "query_${n}.sql"
+    n=$((n + 1))
 done < queries.sql
+n=$((n - 1))
 sleep 1 &
 pids[0]=$!
-for ((i=0; i<${#queries[@]}; i++)); do
+for ((i=0; i<n; i++)); do
   pids[$i]=${pids[0]}
 done
 loop=1
@@ -140,7 +145,7 @@ while true; do
       psql -c "create index l_shipdate_idx on public.lineitem(l_shipdate);"
       sleep 1 &
       pids[0]=$!
-      for ((i=0; i<${#queries[@]}; i++)); do
+      for ((i=0; i<n; i++)); do
         pids[$i]=${pids[0]}
       done
       create_index=1
@@ -173,12 +178,12 @@ while true; do
     kill $(jobs -p)
     break
   fi
-  for i in "${!queries[@]}"
+  for ((i=0; i<n; i++))
   do
     if [[ $(ps -p ${pids[$i]} | wc -l) -eq 1 ]]
     then
-      printf "%s\t%s\n" "$i" "${queries[$i]}"
-      psql -c "${queries[$i]}" > /dev/null &
+      #printf "%s\t%s\n" "$i" "${queries[$i]}"
+      psql --file="query_$[i+1].sql" > /dev/null &
       pids[$i]=$!
     fi
   done
