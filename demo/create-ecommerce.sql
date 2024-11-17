@@ -132,3 +132,11 @@ CREATE OR REPLACE FUNCTION "order".lineitems_byflagandstatus_forshippeddate(date
 AS $$
 SELECT l_returnflag, l_linestatus, SUM(l_quantity) AS sum_qty, SUM(l_extendedprice) AS sum_base_price, SUM(l_extendedprice*(1.0-l_discount)) AS sum_disc_price, SUM(l_extendedprice*(1.0-l_discount)*(1.0+l_tax)) AS sum_charge, AVG(l_quantity) AS avg_qty, AVG(l_extendedprice) AS avg_price, AVG(l_discount) AS avg_disc, COUNT(*) AS count_order FROM lineitem WHERE l_shipdate <= date ($1) - 100 GROUP BY l_returnflag, l_linestatus ORDER BY l_returnflag, l_linestatus $$
 LANGUAGE SQL;
+
+CREATE INDEX s_phone_idx ON supplier.supplier(s_phone);
+
+CREATE INDEX s_phone ON supplier.supplier(s_phone);
+
+CREATE INDEX c_phone_idx ON customer.customer(c_phone);
+
+CREATE INDEX c_phone ON customer.customer(c_phone);
