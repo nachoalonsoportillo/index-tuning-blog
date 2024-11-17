@@ -5,6 +5,7 @@ SELECT azure_storage.account_add('<storage_account_name>', '<storage_account_acc
 SELECT path, bytes, pg_size_pretty(bytes), content_type FROM azure_storage.blob_list('<storage_account_name>','<container_name>');
 
 CREATE SCHEMA customer;
+
 CREATE TABLE customer.customer(
         c_custkey int NOT NULL,
         c_name varchar(64) NULL,
@@ -19,6 +20,8 @@ CREATE TABLE customer.customer(
 COPY customer.customer
 FROM 'https://<storage_account_name>.blob.core.windows.net/<container_name>/customer.tbl'
 WITH (DELIMITER '|', FORMAT CSV, HEADER false);
+
+CREATE SCHEMA "order";
 
 CREATE TABLE "order".lineitem(
         l_orderkey int NULL,
@@ -140,3 +143,7 @@ CREATE INDEX s_phone ON supplier.supplier(s_phone);
 CREATE INDEX c_phone_idx ON customer.customer(c_phone);
 
 CREATE INDEX c_phone ON customer.customer(c_phone);
+
+SET statement_timeout = 2;
+
+CREATE INDEX CONCURRENTLY r_name_idx ON common.region(r_name);
